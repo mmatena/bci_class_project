@@ -49,6 +49,13 @@ parser.add_argument('--gru_rank_ih_l0', type=int, help='Rank to compress weight_
 parser.add_argument('--magnitude_pruned', type=bool, default=False,
                     help='Whether the saved model is a magnitude pruned model.')
 
+
+# Distillation flags. Used these when the saved model has been distilled.
+
+parser.add_argument('--distilled', type=bool, default=False,
+                    help='Whether the saved model is a distilled model.')
+
+
 args = parser.parse_args()
 
 # paths to model and data directories
@@ -78,6 +85,10 @@ else:
         print(f'GPU number {gpu_number} requested but not available.')
     print('Using CPU for model inference.')
     device = torch.device('cpu')
+
+
+if args.distilled:
+    model_args['model'] = model_args['student_model']
 
 # define model
 model = GRUDecoder(

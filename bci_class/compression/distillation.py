@@ -381,7 +381,7 @@ class BrainToTextDecoder_Trainer:
         ''' 
         Load a teacher checkpoint
         '''
-        checkpoint = torch.load(load_path, weights_only=False)  # checkpoint is just a dict
+        checkpoint = torch.load(load_path, weights_only=False, map_location=self.device)  # checkpoint is just a dict
         self.teacher_model.load_state_dict(checkpoint['model_state_dict'])
         self.teacher_model.to(self.device)
         self.logger.info("Loaded model from checkpoint: " + load_path)

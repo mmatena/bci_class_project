@@ -1,4 +1,80 @@
-# An Accurate and Rapidly Calibrating Speech Neuroprosthesis
+# Compression of Phoneme Decoders
+
+See the original repo at https://github.com/Neuroprosthetics-Lab/nejm-brain-to-text for instructions on how to set up the environment.
+
+
+## Distillation
+
+Here is an example command to train the distilled model:
+```bash
+CUDA_VISIBLE_DEVICES=1 \
+python ./bci_class/scripts/distill_model.py \
+    --config_path ./bci_class/configs/distillation/exps/distillation.05width.yaml
+
+```
+
+Here is how to evaluate the distilled model:
+```bash
+python ./bci_class/scripts/evaluate_model2.py \
+    --model_path ./data/distillation.05width \
+    --data_dir ./data/hdf5_data_final \
+    --eval_type val \
+    --gpu_number 1 \
+    --distilled true
+```
+
+## Pruning
+Here is an example script on how to created a pruned model without additional training.
+```bash
+CUDA_VISIBLE_DEVICES=0 python ./bci_class/scripts/prune_by_magnitude.py \
+    --input_path ./data/t15_pretrained_rnn_baseline \
+    --output_path ./data/t15_pretrained_rnn_baseline.mag_prune.30 \
+    --day_weights_retain_fraction 0.3 \
+    --non_day_weights_retain_fraction 0.3
+```
+
+Here is an example script on how to create a pruned model with additional training.
+```bash
+CUDA_VISIBLE_DEVICES=0 \
+python ./bci_class/scripts/train_model_magnitude_pruned.py \
+    --config_path ./bci_class/configs/magnitude_pruned/exps/magnitude_pruned.03rf.yaml \
+    --day_weights_retain_fraction 0.3 \
+    --non_day_weights_retain_fraction 0.3
+```
+
+Here is an example script on how to evaluate a pruned model.
+```bash
+python ./bci_class/scripts/evaluate_model2.py \
+    --model_path ./data/magnitude_pruned.03rf.yaml \
+    --data_dir ./data/hdf5_data_final \
+    --eval_type val \
+    --gpu_number 1 \
+    --magnitude_pruned true
+```
+
+
+## Rank Reduction
+Here is an example script to create the rank-reduced model.
+```bash
+CUDA_VISIBLE_DEVICES=0 python ./bci_class/scripts/compress_with_svd.py \
+    --input_path ./data/t15_pretrained_rnn_baseline \
+    --output_path ./data/t15_pretrained_rnn_baseline.svd.100 \
+    --day_weights_rank 256 \
+    --gru_rank 576 \
+    --gru_rank_ih_l0 1744
+```
+
+Here is an example script on how to evaluate the rank-reduced model.
+```bash
+python evaluate_model.py \
+    --model_path ../data/t15_pretrained_rnn_baseline.svd.100 \
+    --data_dir ../data/hdf5_data_final \
+    --eval_type val \
+    --gpu_number 1
+```
+
+
+<!-- # An Accurate and Rapidly Calibrating Speech Neuroprosthesis
 *The New England Journal of Medicine* (2024)
 
 Nicholas S. Card, Maitreyee Wairagkar, Carrina Iacobacci,
@@ -106,3 +182,4 @@ Our Kaldi-based ngram implementation requires a different version of torch than 
 ```
 
 Verify it worked by activating the conda environment with the command `conda activate b2txt25_lm`.
+ -->
